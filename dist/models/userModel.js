@@ -27,7 +27,10 @@ exports.UserModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const ObjectId = mongoose_1.default.Types.ObjectId;
 const UserSchema = new mongoose_1.Schema({
-    username: { type: String, unique: true },
+    email: {
+        type: String,
+        unique: true
+    },
     password: String
 });
-exports.UserModel = (0, mongoose_1.model)("Usermodel", UserSchema);
+exports.UserModel = (0, mongoose_1.model)("User", UserSchema);

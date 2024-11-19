@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken"
-import { JWT_PASSWORD } from "../config";
+import { JWT_SECRET } from "../config";
 import { NextFunction, Request, Response } from "express";
 
 
@@ -10,11 +10,12 @@ export const authmiddleware = (
 
     const token = req.headers.authorization;
 
-    const response = jwt.verify(token as string, JWT_PASSWORD as string);
+    const decoded = jwt.verify(token as string, JWT_SECRET  as string);
 
-    if(response){
+
+    if(decoded){
         //@ts-ignore
-        req.userId = token.id;
+        req.userId = decoded.id;
         next();
     }
 

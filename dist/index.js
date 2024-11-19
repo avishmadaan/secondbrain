@@ -27,7 +27,7 @@ function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield mongoose_1.default.connect(config_1.MONGO_URI);
         app.listen(config_1.PORT);
-        console.log(`Listening on ${config_1.PORT}`);
+        console.log(`Listening on Port ${config_1.PORT}`);
     });
 }
 main();

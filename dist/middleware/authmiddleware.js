@@ -8,10 +8,11 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("../config");
 const authmiddleware = (req, res, next) => {
     const token = req.headers.authorization;
-    const response = jsonwebtoken_1.default.verify(token, config_1.JWT_PASSWORD);
-    if (response) {
+    const decoded = jsonwebtoken_1.default.verify(token, config_1.JWT_SECRET);
+    console.log(decoded);
+    if (decoded) {
         //@ts-ignore
-        req.userId = token.id;
+        req.userId = decoded.id;
         next();
     }
     else {

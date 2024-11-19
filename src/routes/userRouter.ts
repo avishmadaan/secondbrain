@@ -2,33 +2,36 @@ import {Router} from 'express'
 import z from "zod";
 import bcrypt from "bcrypt";
 import { UserModel } from '../models/userModel';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../config';
 
 export const userRouter = Router();
 
 userRouter.post("/signup", async (req, res)=> {
 
     const requiredBody = z.object({
-        username:z.string().email(),
-        password:z.string().min(5).max(10)
+        email:z.string().email(),
+        password:z.string().min(5, {message:"Minimum length is 5"}).max(16)
 
     })
     const parsedData = requiredBody.safeParse(req.body);
+    
     if(!parsedData.success) {
         res.json({
             message:"Incorrect Format",
-            error: parsedData.error.issues[0].message,
+            error: parsedData.error,
         })
         return;
     }
 
-    const username = req.body.username;
+    const email = req.body.email;
     const password =  req.body.password;
 
     const hashedPassword = await bcrypt.hash(password,10);
 
     try {
         await UserModel.create({
-            username,
+            email,
             password:hashedPassword
         })
 
@@ -51,44 +54,56 @@ userRouter.post("/signup", async (req, res)=> {
 })
 
 
-userRouter.post("/api/v1/signin", async (req, res)=> {
+userRouter.post("/signin", async (req, res)=> {
 
-    const requiredBody = z.object({
-        username:z.string().email(),
-        password:z.string().min(5).max(10)
+    const email = req.body.email;
+    const password =  req.body.password;
 
+    const user = await UserModel.findOne({
+        email
     })
-    const parsedData = requiredBody.safeParse(req.body);
-    if(!parsedData.success) {
-        res.json({
-            message:"Incorrect Format",
-            error: parsedData.error.issues[0].message,
-        })
+
+    if(!user) {
+
+        res.status(403).json({
+            message:"User Does Not Exist"
+        });
+
         return;
     }
 
-    const username = req.body.username;
-    const password =  req.body.password;
+    const comparePassword = await bcrypt.compare(password, user.password as string)
 
-    const hashedPassword = await bcrypt.hash(password,10);
+
 
     try {
-        await UserModel.create({
-            username,
-            password:hashedPassword
-        })
+   
+        if(comparePassword) {
 
-        res.json({
-            message:"Account Creation Success"
-        })
+            const token = jwt.sign({
+               id: user._id.toString(),
 
+            }, JWT_SECRET as string)
+
+            res.status(200).json({
+                message:"Signin Success",
+                token
+            })
+        }
+
+        else {
+            res.status(411).json({
+                message:"Incorrect Password"
+            })
+        }
 
     }
 
     catch(e){
+        console.log(e);
 
-       res.status(411).json({
-        message:"User Already Exist"
+       res.status(500).json({
+        message:"Server Error"
        })
     }
 
