@@ -128,6 +128,7 @@ contentRouter.get("/getall", async (req, res)=> {
         })
 
         res.status(200).json({
+            message:"Data Found",
             content:data
         })
     }
