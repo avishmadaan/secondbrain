@@ -80,6 +80,8 @@ userRouter.post("/signin", async (req, res)=> {
    
         if(comparePassword) {
 
+            console.log("userId Here")
+            console.log(user._id);
             const token = jwt.sign({
                id: user._id.toString(),
 

@@ -122,10 +122,11 @@ contentRouter.get("/getall", async (req, res)=> {
     }
 
     try {
+        console.log("userId" +" "+ userId);
 
         const data = await ContentModel.find({
             userId
-        })
+        }).populate("userId","email" )
 
         res.status(200).json({
             message:"Data Found",

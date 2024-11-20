@@ -8,4 +8,4 @@ const LinkSchema = new Schema({
 
 })
 
-export const UserModel = model( "Link", LinkSchema);
+export const LinkModal = model( "Link", LinkSchema);
