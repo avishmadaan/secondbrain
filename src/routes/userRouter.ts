@@ -11,14 +11,16 @@ userRouter.post("/signup", async (req, res)=> {
 
     const requiredBody = z.object({
         email:z.string().email(),
-        password:z.string().min(5, {message:"Minimum length is 5"}).max(16)
+        password:z.string().min(8, {message:"Minimum length is 8"}).max(20).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/, {
+            message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character."
+        })
 
     })
     const parsedData = requiredBody.safeParse(req.body);
     
     if(!parsedData.success) {
-        res.json({
-            message:"Incorrect Format",
+        res.status(411).json({
+            message:"Error in inputs",
             error: parsedData.error,
         })
         return;
@@ -35,7 +37,7 @@ userRouter.post("/signup", async (req, res)=> {
             password:hashedPassword
         })
 
-        res.json({
+        res.status(200).json({
             message:"Account Creation Success"
         })
 
@@ -44,9 +46,23 @@ userRouter.post("/signup", async (req, res)=> {
 
     catch(e){
 
-       res.status(411).json({
-        message:"User Already Exist"
-       })
+        //@ts-ignore
+        if(e.code === 11000) {
+
+            res.status(411).json({
+             message:"User already exists with this email"
+            })
+
+        }
+
+        else {
+
+            res.status(500).json({
+                message:"Server error"
+               })
+
+        }
+
     }
 
 
@@ -105,7 +121,7 @@ userRouter.post("/signin", async (req, res)=> {
         console.log(e);
 
        res.status(500).json({
-        message:"Server Error"
+        message:"Internal Server Error"
        })
     }
 

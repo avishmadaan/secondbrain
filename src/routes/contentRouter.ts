@@ -1,7 +1,7 @@
 import {Router} from 'express';
 import { authmiddleware } from '../middleware/authmiddleware';
 
-import { ContentModel } from '../models/contentModel';
+import { ContentModel, contentTypes } from '../models/contentModel';
 
 import z from "zod";
 import { UserModel } from '../models/userModel';
@@ -14,9 +14,8 @@ contentRouter.post("/add" ,async (req, res)=> {
 
     const requiredBody = z.object({
         link:z.string().min(1),
-        type:z.string(),
-        title:z.string()
-
+        type:z.enum(contentTypes),
+        title:z.string(),
         //need to work here
     })
 
@@ -25,7 +24,8 @@ contentRouter.post("/add" ,async (req, res)=> {
     if(!safeParse.success) {
 
         res.status(403).json({
-            message:"Content Format is Not Correct"
+            message:"Content Format is Not Correct",
+            error: safeParse.error.errors
         })
         return;
 
@@ -70,7 +70,7 @@ contentRouter.delete("/delete/:id", async (req, res)=> {
 //@ts-ignore
     if(content._id != contentId) {
 
-        res.status(404).json({
+        res.status(403).json({
             message:"Not Enough Access1"
         })
         return;
