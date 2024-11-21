@@ -1,14 +1,15 @@
 import mongoose, { model, Schema } from "mongoose"
-const ObjectId = mongoose.Types.ObjectId;
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 export const contentTypes = ["image", "video","articles","audio", "tweet", "youtube"] as const;
 
 
 const ContentSchema = new Schema({
-    link: {type:String, required:true},
+    link: {type:String},
     type: {type:String, enum:contentTypes, required:true},
     title:{type:String, required:true},
     tags: [{type: ObjectId, ref:'Tag'}],
+    description:{type:String},
     userId: {type:ObjectId, ref:'User', required:true}
 })
 

@@ -4,10 +4,12 @@ import { contentRouter } from "./routes/contentRouter";
 import { shareRouter } from "./routes/shareRouter";
 import mongoose   from "mongoose";
 import { MONGO_URI, PORT } from "./config";
+import cors from 'cors';
 
 
 const app = express();
 app.use(express.json());
+app.use(cors()); 
 
 
 app.use("/api/v1/user", userRouter );

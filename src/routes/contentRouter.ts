@@ -5,6 +5,7 @@ import { ContentModel, contentTypes } from '../models/contentModel';
 
 import z from "zod";
 import { UserModel } from '../models/userModel';
+import { TagModel } from '../models/tagsModel';
 
 export const contentRouter = Router();
 
@@ -13,10 +14,10 @@ contentRouter.use(authmiddleware);
 contentRouter.post("/add" ,async (req, res)=> {
 
     const requiredBody = z.object({
-        link:z.string().min(1),
+        link:z.string(),
         type:z.enum(contentTypes),
         title:z.string(),
-        //need to work here
+        tags:z.array(z.string())
     })
 
     const safeParse = requiredBody.safeParse(req.body)
@@ -31,10 +32,32 @@ contentRouter.post("/add" ,async (req, res)=> {
 
     }
 
-    try {
-        console.log("reached here")
+    const {link, type, title, tags} = safeParse.data;
 
-        const content = await ContentModel.create(req.body);
+    try {
+       const tagIds = await Promise.all(
+        tags.map(async (tagTitle) => {
+            let tag = await TagModel.findOne({title:tagTitle});
+
+            if(!tag) {
+                tag = await TagModel.create({title:tagTitle})
+            }
+
+            return tag._id;
+
+        })
+       )
+
+//@ts-ignore
+       const userId = req.userId;
+
+        const content = await ContentModel.create({
+            link, 
+            type, 
+            title, 
+            tags : tagIds,
+            userId,
+        } ); 
 
         res.status(200).json({
             message:"Content Created Successfully"
@@ -126,7 +149,7 @@ contentRouter.get("/getall", async (req, res)=> {
 
         const data = await ContentModel.find({
             userId
-        }).populate("userId","email" )
+        }).populate("tags","title" )
 
         res.status(200).json({
             message:"Data Found",
@@ -145,3 +168,42 @@ contentRouter.get("/getall", async (req, res)=> {
     
 
 });
+
+
+contentRouter.get("/getalltags", async (req, res)=> {
+
+    //@ts-ignore
+    const userId = req.userId;
+
+    try {
+
+
+   
+
+    const tags = await TagModel.find({
+        _id: {$in : await ContentModel.distinct("tags", {userId})
+
+        }
+    })
+
+    // Query: ContentModel.distinct("tags", { userId: "user123" })
+
+    // Result: ["tag1", "tag2", "tag3"]
+    // (because distinct eliminates duplicates).
+
+    // TagModel.find({ _id: { $in: ["tag1", "tag2", "tag3"] } })
+
+    res.status(200).json({
+        message: "Tags fetched successfully",
+        tags,
+    });
+} catch (e) {
+    console.error(e);
+    res.status(500).json({
+        message: "Internal Server Error",
+    });
+}
+
+  
+
+})
