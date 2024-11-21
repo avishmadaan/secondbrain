@@ -17,7 +17,8 @@ contentRouter.post("/add" ,async (req, res)=> {
         link:z.string(),
         type:z.enum(contentTypes),
         title:z.string(),
-        tags:z.array(z.string())
+        tags:z.array(z.string()),
+        description:z.string()
     })
 
     const safeParse = requiredBody.safeParse(req.body)
@@ -32,7 +33,7 @@ contentRouter.post("/add" ,async (req, res)=> {
 
     }
 
-    const {link, type, title, tags} = safeParse.data;
+    const {link, type, title, tags, description} = safeParse.data;
 
     try {
        const tagIds = await Promise.all(
@@ -57,6 +58,7 @@ contentRouter.post("/add" ,async (req, res)=> {
             title, 
             tags : tagIds,
             userId,
+            description
         } ); 
 
         res.status(200).json({
@@ -149,6 +151,52 @@ contentRouter.get("/getall", async (req, res)=> {
 
         const data = await ContentModel.find({
             userId
+        }).populate("tags","title" )
+
+        res.status(200).json({
+            message:"Data Found",
+            content:data
+        })
+    }
+
+    catch(e) {
+        console.log(e);
+
+        res.status(500).json({
+            message:"Internal Server Error"
+        })
+    }
+
+    
+
+});
+
+contentRouter.get("/getbytype/:reqType", async (req, res)=> {
+
+    const reqType =  req.params.reqType;
+    console.log(reqType)
+
+    //@ts-ignore
+    const userId = req.userId;
+    const user =await UserModel.findOne({
+        _id:userId
+    })
+
+
+    if(!user) {
+
+        res.status(404).json({
+            message:"No Such User"
+        })
+        return;
+    }
+
+    try {
+        console.log("userId" +" "+ userId);
+
+        const data = await ContentModel.find({
+            userId,
+            type:reqType
         }).populate("tags","title" )
 
         res.status(200).json({

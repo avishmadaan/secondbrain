@@ -15,10 +15,19 @@ shareRouter.post("/share",authmiddleware, async (req, res)=> {
 
         try {
 
-            await LinkModal.create({
+            const link = await LinkModal.findOne({
                 hash,
                 userId
             })
+
+            if(!link) {
+                await LinkModal.create({
+                    hash,
+                    userId
+                })
+                
+            }
+
 
             res.status(200).json({
                 message:"Link Created",

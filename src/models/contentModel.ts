@@ -1,7 +1,7 @@
 import mongoose, { model, Schema } from "mongoose"
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
-export const contentTypes = ["image", "video","articles","audio", "tweet", "youtube"] as const;
+export const contentTypes =  ["tweet", "video", "document","link"] as const;
 
 
 const ContentSchema = new Schema({
