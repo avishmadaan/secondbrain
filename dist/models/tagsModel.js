@@ -27,6 +27,6 @@ exports.TagModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const ObjectId = mongoose_1.default.Types.ObjectId;
 const tagSchema = new mongoose_1.Schema({
-    title: { type: String, required: true, unique: true }
+    title: { type: String, unique: true }
 });
 exports.TagModel = (0, mongoose_1.model)("Tag", tagSchema);

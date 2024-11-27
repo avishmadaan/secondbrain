@@ -23,11 +23,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserModel = void 0;
+exports.LinkModal = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const ObjectId = mongoose_1.default.Types.ObjectId;
 const LinkSchema = new mongoose_1.Schema({
-    hash: { type: String, required: true },
-    userId: { type: ObjectId, ref: 'User', required: true }
+    hash: { type: String, required: true, unique: true },
+    userId: { type: ObjectId, ref: 'User', required: true, unique: true }
 });
-exports.UserModel = (0, mongoose_1.model)("Link", LinkSchema);
+exports.LinkModal = (0, mongoose_1.model)("Link", LinkSchema);
